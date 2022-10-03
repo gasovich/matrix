@@ -45,18 +45,27 @@ impl Matrix {
 		list
 	}
 	
-	fn get(&self, i: usize, j: usize) -> f64 {
-		self.v[j * self.row + i]
+	fn get(&self, i: usize, j: usize) -> Option<f64> {
+		if i < self.row && j < self.col {
+			return Some(self.v[j * self.row + i])
+		} else {
+			return None
+		}
 	}
 
-	fn set(&mut self, i: usize, j: usize, x: f64) {
-		self.v[j * self.row + i] = x;
+	fn set(&mut self, i: usize, j: usize, x: f64) -> Option<f64> {
+		if i < self.row && j < self.col {
+			self.v[j * self.row + i] = x;
+			Some(x)
+		} else {
+			return None
+		}
 	}
 	
 	fn show(&self) {
 		for i in 0..self.row {
 			for j in 0..self.col {
-				let value = self.get(i, j);
+				let value = self.get(i, j).unwrap();
 				print!("v[{i},{j}] = {value}\t")
 			}
 		println!()
@@ -97,4 +106,15 @@ fn main() {
 	list2.set(2, 2, 1.0);
 	
 	list2.show();
+	
+	match list.get(100,100) {
+		Some(x) => println!("{}", x),
+		None => println!("Выход за пределы массива"),
+	}
+	
+	match list.get(7,3) {
+		Some(x) => println!("{}", x),
+		None => println!("Выход за пределы массива"),
+	}
+
 }
