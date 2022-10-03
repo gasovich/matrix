@@ -8,7 +8,7 @@ struct Matrix {
 }
 
 impl Matrix {
-	fn from_file(path: &str) -> Matrix {
+	fn from_file(path: &str) -> Matrix { // Чтение матрицы из файла
 		let mut list = Matrix {
 			v: Vec::new(),
 			row: 0,
@@ -42,27 +42,28 @@ impl Matrix {
 		list.v.pop();
 		list.row -= 1;
 		list.col /= list.row;
+		println!("row = {}\tcol = {}", list.row, list.col);
 		list
 	}
 	
-	fn get(&self, i: usize, j: usize) -> Option<f64> {
+	fn get(&self, i: usize, j: usize) -> Option<f64> { // Получить элемент матрицы по индексу
 		if i < self.row && j < self.col {
-			return Some(self.v[j * self.row + i])
+			return Some(self.v[i * self.col + j])
 		} else {
 			return None
 		}
 	}
 
-	fn set(&mut self, i: usize, j: usize, x: f64) -> Option<f64> {
+	fn set(&mut self, i: usize, j: usize, x: f64) -> Option<f64> { // Записать значение элемента по индексу
 		if i < self.row && j < self.col {
-			self.v[j * self.row + i] = x;
+			self.v[i * self.col + j] = x;
 			Some(x)
 		} else {
 			return None
 		}
 	}
 	
-	fn show(&self) {
+	fn show(&self) { // Вывести матрицу на консоль
 		for i in 0..self.row {
 			for j in 0..self.col {
 				let value = self.get(i, j).unwrap();
@@ -73,7 +74,7 @@ impl Matrix {
 		println!()
 	}
 	
-	fn create(r: usize, c: usize) -> Matrix {
+	fn create(r: usize, c: usize) -> Matrix { // Создать нулевую матрицу
 		let mut list = Matrix {
 			v: Vec::new(),
 			row: 0,
@@ -88,33 +89,39 @@ impl Matrix {
 		list
 	}
 	
+	fn mul_by_num(&self, num: f64) -> Matrix { // Умножение матрицы на число
+		let mut list = Matrix {
+			v: Vec::new(),
+			row: self.row,
+			col: self.col,
+		};
+		
+		for i in 0..(self.row * self.col) {
+			list.v.push(self.v[i] * num)
+		}
+		list
+	}
+	
+	fn transpose(self) -> Matrix {
+		let mut list = Matrix::create(self.col, self.row);
+		for i in 0..self.row {
+			for j in 0.. self.col {
+				list.set(j, i, self.get(i, j).unwrap());
+			}
+		};
+		list
+	}
+	
 }
 
 fn main() {
 	
-	let mut list = Matrix::from_file("/home/andy/my_rust/matrix/data/data2.csv");
+	let mut list = Matrix::from_file("/home/andy/my_rust/matrix/data/data3.csv");
 	
 	list.show();
 	
-	list.set(5, 1, 500.78);
-	
-	list.show();
-	
-	let mut list2 = Matrix::create(3, 5);
-	list2.set(0, 0, 1.0);
-	list2.set(1, 1, 1.0);
-	list2.set(2, 2, 1.0);
+	let list2 = list.transpose();
 	
 	list2.show();
 	
-	match list.get(100,100) {
-		Some(x) => println!("{}", x),
-		None => println!("Выход за пределы массива"),
-	}
-	
-	match list.get(7,3) {
-		Some(x) => println!("{}", x),
-		None => println!("Выход за пределы массива"),
-	}
-
 }
