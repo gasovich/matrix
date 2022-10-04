@@ -102,7 +102,7 @@ impl Matrix {
 		list
 	}
 	
-	fn transpose(self) -> Matrix {
+	fn transpose(self) -> Matrix { // Транспонирование матрицы
 		let mut list = Matrix::create(self.col, self.row);
 		for i in 0..self.row {
 			for j in 0.. self.col {
@@ -112,16 +112,35 @@ impl Matrix {
 		list
 	}
 	
+	fn multipl(&self, x: &Matrix) -> Option<Matrix> { // Умножение матриц
+		// self - первый множитель, x - второй множитель
+		if self.col != x.row { // Если матрицы не соразмерны, то возвращаем None
+			return None
+		}
+		
+		let mut product = Matrix::create(self.row, x.col); // Матрица результата
+		
+		for k in 0..x.col {
+			for i in 0..self.row {
+				let mut sum = 0.0;
+				for j in 0..self.col {
+					let a = self.get(i, j).expect("Out of bound!"); 
+					let b = x.get(j, k).expect("Out of bound!");
+					sum += a * b
+				}
+				product.set(i, k, sum);
+			}
+		}
+	
+		return Some(product)
+	}
 }
 
 fn main() {
 	
-	let mut list = Matrix::from_file("/home/andy/my_rust/matrix/data/data3.csv");
-	
-	list.show();
-	
-	let list2 = list.transpose();
-	
-	list2.show();
-	
+	let matr1 = Matrix::from_file("/home/andy/my_rust/matrix/data/matr1.csv");
+	let matr2 = Matrix::from_file("/home/andy/my_rust/matrix/data/matr2.csv");
+	let prod = matr1.multipl(&matr2).unwrap();
+	prod.show();
+	prod.transpose().show();
 }
