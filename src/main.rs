@@ -8,12 +8,14 @@ struct Matrix {
 }
 
 impl Matrix {
-	fn from_file(path: &str) -> Matrix { // Чтение матрицы из файла
+	fn from_file(path: String) -> Matrix { // Чтение матрицы из файла
 		let mut list = Matrix {
 			v: Vec::new(),
 			row: 0,
 			col: 0,
 		};
+		
+		println!("-->{}", path);
 		
 		list.row = 0;
 		list.col = 0;
@@ -134,13 +136,33 @@ impl Matrix {
 	
 		return Some(product)
 	}
+
+	fn save_as(&self, path: String) { // Сохранение матрицаы в файл в формате .csv
+		let mut buffer = String::new();
+		
+		for i in 0..self.row {
+			for j in 0..self.col {
+				buffer.push_str(&self.get(i, j).unwrap().to_string());
+				buffer.push(';')
+			}
+			buffer.pop();
+			buffer.push('\n')
+		}
+		
+		let mut f = File::create(path).expect("Error create file");
+		f.write_all(buffer.as_bytes()).expect("Error writing to file");
+	}	
+	
 }
 
 fn main() {
+	let base = "/home/andy/my_rust/matrix/data/";
+	let name1 = "matr1.csv";
+	let name3 = "matr3.csv";
 	
-	let matr1 = Matrix::from_file("/home/andy/my_rust/matrix/data/matr1.csv");
-	let matr2 = Matrix::from_file("/home/andy/my_rust/matrix/data/matr2.csv");
-	let prod = matr1.multipl(&matr2).unwrap();
-	prod.show();
-	prod.transpose().show();
+	let matr1 = Matrix::from_file(base.to_string() + name1);
+	matr1.show();
+	let matr3 = matr1.transpose();
+	matr3.save_as(base.to_string() + name3);
+	matr3.show();
 }
