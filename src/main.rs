@@ -1,6 +1,8 @@
 use std::fs::File;
 use std::io::{Read, Write};
 
+const EPSILON:f64 = 1e-10;
+
 struct Matrix {
 	v: Vec<f64>,
 	row: usize,
@@ -14,8 +16,6 @@ impl Matrix {
 			row: 0,
 			col: 0,
 		};
-		
-		println!("-->{}", path);
 		
 		list.row = 0;
 		list.col = 0;
@@ -44,7 +44,6 @@ impl Matrix {
 		list.v.pop();
 		list.row -= 1;
 		list.col /= list.row;
-		println!("row = {}\tcol = {}", list.row, list.col);
 		list
 	}
 	
@@ -104,7 +103,7 @@ impl Matrix {
 		list
 	}
 	
-	fn transpose(self) -> Matrix { // Транспонирование матрицы
+	fn transpose(&self) -> Matrix { // Транспонирование матрицы
 		let mut list = Matrix::create(self.col, self.row);
 		for i in 0..self.row {
 			for j in 0.. self.col {
@@ -137,7 +136,7 @@ impl Matrix {
 		return Some(product)
 	}
 
-	fn save_as(&self, path: String) { // Сохранение матрицаы в файл в формате .csv
+	fn save_as(&self, path: String) { // Сохранение матрицы в файл в формате .csv
 		let mut buffer = String::new();
 		
 		for i in 0..self.row {
@@ -153,16 +152,53 @@ impl Matrix {
 		f.write_all(buffer.as_bytes()).expect("Error writing to file");
 	}	
 	
-}
+	fn swap_row(&mut self, p:usize, q:usize) -> &Matrix {
+		let mut buffer:f64;
+		for i in 0..self.col {
+			buffer = self.get(p, i).unwrap();
+			self.set(p, i, self.get(q, i).unwrap());
+			self.set(q, i, buffer);
+		}
+		return self
+	}
 
-fn main() {
-	let base = "/home/andy/my_rust/matrix/data/";
-	let name1 = "matr1.csv";
-	let name3 = "matr3.csv";
+	fn gauss(&mut self)-> &mut Matrix { // Решение системы линейных уравнение методом Гаусса
+		let mut non_zero: usize = 0;
+		
+		for i in 0..(self.row) {// Ищем строку с ненулевм первым элементом
+			if self.get(i, 0).unwrap().abs() < EPSILON {
+				non_zero += 1
+			} else {
+				break
+			}
+		}
+
+		if non_zero > 0 { // Поднимаем найденную строку на самый верх
+			self.swap_row(0, non_zero);
+		}
+//----------------------------------------------
+// Добавить объемлющий цикл
+		let divider = self.get(0, 0).unwrap();
+
+		for i in 1..self.row{
+			// Делим первую строку на ее первый элемент и вычитаем из второй строки
+			let factor = self.get(i, 0).unwrap();
+			for j in 0..self.col {
+				let divided_elem = self.get(0, j).unwrap() * factor / divider; // делим
+				self.set(i, j, self.get(i, j).unwrap() - divided_elem); // вычитаем
+			}
+		}
+	self
+	}
+}
 	
-	let matr1 = Matrix::from_file(base.to_string() + name1);
-	matr1.show();
-	let matr3 = matr1.transpose();
-	matr3.save_as(base.to_string() + name3);
+fn main() {	
+	let base = "/home/andy/my_rust/matrix/data/";
+	let name3 = "matr2.csv";
+	
+	let mut matr3 = Matrix::from_file(base.to_string() + name3);
+
+	matr3.show();
+	matr3.gauss();
 	matr3.show();
 }
